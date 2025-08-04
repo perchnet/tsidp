@@ -36,7 +36,6 @@ jobs:
             joined="$joined$delim$tag"
             delim=","
           done
-          echo "$joined"
-          echo "::set-output name=tags::$joined"
+          echo "tags=$joined" | tee -a $GITHUB_OUTPUT
       - name: run build commands
         run: make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=${{ steps.tags.outputs.tags }} PUSH=true

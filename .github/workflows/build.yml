@@ -12,7 +12,14 @@ jobs:
       packages: write
       id-token: write
     steps:
-      - run: |
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: run build commands
+        run: |
           #!/usr/bin/env bash
           set -euxo pipefail
           # Clone the Tailscale repository

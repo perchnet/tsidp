@@ -22,20 +22,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: tailscale/tailscale
-      - name: Generate image tags from repository
-        id: tags
-        run: |
-          #!/usr/bin/env bash
-          set -euxo pipefail
-          TAGS=(latest)
-          TAGS+=($(git describe --tags --abbrev=0))
-          TAGS+=($(git describe --tags))
-          delim=""
-          joined=""
-          for tag in "${TAGS[@]}"; do
-            joined="$joined$delim$tag"
-            delim=","
-          done
-          echo "tags=$joined" | tee -a $GITHUB_OUTPUT
+      - id: mkversion
+        run: go run ./cmd/mkversion | tee -a $GITHUB_OUTPUT
       - name: run build commands
-        run: make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=${{ steps.tags.outputs.tags }} PUSH=true
+        run: make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS="latest,${{ steps.mkversion.outputs.VERSION_SHORT }},${{ steps.mkversion.outputs.VERSION_LONG }},${{ steps.mkversion.outputs.VERSION_GIT_HASH }},${{ steps.mkversion.outputs.VERSION_TRACK }}" PUSH=true

@@ -25,6 +25,5 @@ jobs:
           # Clone the Tailscale repository
           git clone https://github.com/tailscale/tailscale.git
           cd tailscale
-
           # Build and publish to your own registry
-          make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=v0.0.1 PUSH=true
+          make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=v0.0.1,test PUSH=true

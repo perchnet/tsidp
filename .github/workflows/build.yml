@@ -18,12 +18,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: run build commands
+      - uses: actions/checkout@v4
+        with:
+          #fetch-depth: 0
+          repository: tailscale/tailscale
+      - name: Generate image tags from repository
+        id: tags
         run: |
           #!/usr/bin/env bash
           set -euxo pipefail
-          # Clone the Tailscale repository
-          git clone https://github.com/tailscale/tailscale.git
-          cd tailscale
-          # Build and publish to your own registry
-          make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=v0.0.1,test PUSH=true
+          TAGS=(latest)
+          TAGS+=($(git describe --tags --abbrev=0))
+          TAGS+=($(git describe --tags))
+          delim=""
+          joined=""
+          for tag in "${TAGS[@]}"; do
+            joined="$joined$delim$tag"
+            delim=","
+          done
+          echo "$joined"
+          echo "::set-output name=tags::$joined"
+      - name: run build commands
+        run: make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=${{ steps.tags.outputs.tags }} PUSH=true

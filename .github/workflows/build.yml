@@ -1,0 +1,23 @@
+name: Build and push Docker image
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - run: |
+          #!/usr/bin/env bash
+          set -euxo pipefail
+          # Clone the Tailscale repository
+          git clone https://github.com/tailscale/tailscale.git
+          cd tailscale
+
+          # Build and publish to your own registry
+          make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS=v0.0.1 PUSH=true

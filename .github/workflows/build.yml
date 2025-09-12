@@ -30,3 +30,24 @@ jobs:
         run: go run ./cmd/mkversion | tee -a $GITHUB_OUTPUT
       - name: run build commands
         run: make publishdevtsidp REPO=ghcr.io/perchnet/tsidp TAGS="latest,${{ steps.mkversion.outputs.VERSION_SHORT }},${{ steps.mkversion.outputs.VERSION_LONG }},${{ steps.mkversion.outputs.VERSION_GIT_HASH }},${{ steps.mkversion.outputs.VERSION_TRACK }}" PUSH=true
+  build-arm:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          repository: tailscale/tailscale
+      - id: mkversion
+        run: go run ./cmd/mkversion | tee -a $GITHUB_OUTPUT
+      - name: run build commands
+        run: make publishdevtsidp REPO=ghcr.io/perchnet/tsidp-arm TAGS="latest,${{ steps.mkversion.outputs.VERSION_SHORT }},${{ steps.mkversion.outputs.VERSION_LONG }},${{ steps.mkversion.outputs.VERSION_GIT_HASH }},${{ steps.mkversion.outputs.VERSION_TRACK }}" PUSH=true
